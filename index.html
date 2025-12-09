@@ -1,0 +1,1810 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BrightBox - Interaktiver Umsatz-Rechner</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #1e293b;
+            background: #f8fafc;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 60px 40px;
+            border-radius: 16px;
+            margin-bottom: 40px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .header .subtitle {
+            font-size: 1.3rem;
+            opacity: 0.95;
+            font-weight: 300;
+        }
+        
+        .controls-panel {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 3px solid #10b981;
+        }
+        
+        .controls-header {
+            font-size: 1.8rem;
+            color: #10b981;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #d1fae5;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        
+        .control-group {
+            background: #f8fafc;
+            padding: 25px;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+        }
+        
+        .control-group label {
+            display: block;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 12px;
+            font-size: 1rem;
+        }
+        
+        .control-group input[type="number"],
+        .control-group input[type="range"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            margin-bottom: 8px;
+        }
+        
+        .control-group input[type="range"] {
+            padding: 0;
+            height: 8px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: #e2e8f0;
+            outline: none;
+        }
+        
+        .control-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #10b981;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        
+        .control-group input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #10b981;
+            cursor: pointer;
+            border-radius: 50%;
+            border: none;
+        }
+        
+        .value-display {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #10b981;
+            margin-top: 8px;
+        }
+        
+        .key-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .metric-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-left: 5px solid #10b981;
+        }
+        
+        .metric-card .label {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-bottom: 8px;
+        }
+        
+        .metric-card .value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #10b981;
+        }
+        
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .section-title {
+            font-size: 1.8rem;
+            color: #10b981;
+            margin-bottom: 30px;
+            padding-bottom: 12px;
+            border-bottom: 3px solid #d1fae5;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 0.95rem;
+        }
+        
+        thead {
+            background: #f1f5f9;
+        }
+        
+        th {
+            padding: 16px;
+            text-align: left;
+            font-weight: 600;
+            color: #475569;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        
+        td {
+            padding: 16px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        tbody tr:hover {
+            background: #f8fafc;
+        }
+        
+        .highlight-row {
+            background: #d1fae5 !important;
+            font-weight: 600;
+        }
+        
+        .scenario-conservative {
+            background: #fef3c7;
+        }
+        
+        .scenario-realistic {
+            background: #d1fae5;
+        }
+        
+        .scenario-optimistic {
+            background: #dbeafe;
+        }
+        
+        .reset-btn {
+            background: #ef4444;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        
+        .reset-btn:hover {
+            background: #dc2626;
+        }
+        
+        .export-btn {
+            background: #10b981;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        
+        .export-btn:hover {
+            background: #059669;
+        }
+        
+        .insight-box {
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            border-left: 5px solid;
+        }
+        
+        .insight-box.success {
+            background: #f0fdf4;
+            border-left-color: #10b981;
+        }
+        
+        .insight-box.warning {
+            background: #fef2f2;
+            border-left-color: #ef4444;
+        }
+        
+        .insight-box.info {
+            background: #eff6ff;
+            border-left-color: #3b82f6;
+        }
+        
+        .calculation-box {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+        }
+        
+        /* VERSION MANAGER STYLES */
+        .version-manager {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 3px solid #6366f1;
+        }
+        
+        .version-header {
+            font-size: 1.8rem;
+            color: #6366f1;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .version-controls {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .version-controls input,
+        .version-controls select,
+        .version-controls button {
+            padding: 12px;
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+            font-size: 1rem;
+        }
+        
+        .version-controls button {
+            background: #6366f1;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .version-controls button:hover {
+            background: #4f46e5;
+        }
+        
+        .version-controls button.delete-btn {
+            background: #ef4444;
+        }
+        
+        .version-controls button.delete-btn:hover {
+            background: #dc2626;
+        }
+        
+        .saved-versions {
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .version-item {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border: 2px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .version-item.active {
+            border-color: #10b981;
+            background: #f0fdf4;
+        }
+        
+        .version-info {
+            flex: 1;
+        }
+        
+        .version-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: #1e293b;
+            margin-bottom: 5px;
+        }
+        
+        .version-details {
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+        
+        .version-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .version-actions button {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        
+        .load-btn {
+            background: #10b981;
+            color: white;
+        }
+        
+        .load-btn:hover {
+            background: #059669;
+        }
+        
+        .delete-version-btn {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .delete-version-btn:hover {
+            background: #dc2626;
+        }
+        
+        /* EDITABLE FEATURES STYLES */
+        .editable-features {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px dashed #e2e8f0;
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+            padding: 8px;
+            background: white;
+            border-radius: 6px;
+        }
+        
+        .feature-item input[type="text"] {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        
+        .feature-item button {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+        
+        .add-feature-btn {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 10px;
+            width: 100%;
+        }
+        
+        .add-feature-btn:hover {
+            background: #059669;
+        }
+        
+        /* EDITABLE COMMENTS */
+        .editable-comment:hover {
+            background: #dcfce7 !important;
+            border-color: #10b981 !important;
+        }
+        
+        .editable-comment:focus {
+            outline: none;
+            background: white !important;
+            border-color: #10b981 !important;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧮 BrightBox Interaktiver Umsatz-Rechner ULTIMATE</h1>
+            <p class="subtitle">Mit Versions-Management & editierbaren Features!</p>
+        </div>
+
+        <!-- VERSIONS-MANAGEMENT -->
+        <div class="version-manager">
+            <h2 class="version-header">💾 Versions-Management</h2>
+            <p style="color: #64748b; margin-bottom: 20px;">Speichere verschiedene Szenarien und vergleiche sie später!</p>
+            
+            <div class="version-controls">
+                <input type="text" id="versionName" placeholder="Version-Name (z.B. 'Konservativ 2025', 'Aggressive Expansion'...)" value="">
+                <button onclick="saveVersion()">💾 Aktuelle Version speichern</button>
+                <button onclick="exportAllVersions()">📥 Alle exportieren (JSON)</button>
+                <button onclick="clearAllVersions()" class="delete-btn">🗑️ Alle löschen</button>
+            </div>
+            
+            <div class="saved-versions" id="savedVersionsList">
+                <div style="text-align: center; padding: 30px; color: #64748b;">
+                    Keine gespeicherten Versionen. Erstelle deine erste Version!
+                </div>
+            </div>
+        </div>
+
+        <!-- INTERAKTIVE CONTROLS -->
+        <div class="controls-panel">
+            <h2 class="controls-header">⚙️ Eingabe-Parameter (Alle Berechnungen passen sich automatisch an!)</h2>
+            
+            <div class="controls-grid">
+                <!-- PREIS PRO SCHÜLER -->
+                <div class="control-group">
+                    <label for="pricePerStudent">💶 Preis pro Schüler/Jahr</label>
+                    <input type="range" id="pricePerStudent" min="0.5" max="3" step="0.01" value="1.0">
+                    <input type="number" id="pricePerStudentInput" min="0.5" max="3" step="0.01" value="1.0" style="margin-top: 10px;">
+                    <div class="value-display" id="priceDisplay">€1,00</div>
+                    <div style="background: #fef3c7; padding: 10px; border-radius: 6px; margin-top: 10px; font-size: 0.85rem;">
+                        <strong>📊 Wettbewerber:</strong><br>
+                        EduPage: €0,70 | Sdui: €1,50 | SchoolFox: €2,20 | IServ: €6,88
+                    </div>
+                </div>
+
+                <!-- DURCHSCHNITTLICHE SCHULGRÖSSE -->
+                <div class="control-group">
+                    <label for="avgSchoolSize">👥 Durchschnittliche Schulgröße (Schüler)</label>
+                    <input type="range" id="avgSchoolSize" min="100" max="2000" step="50" value="500">
+                    <input type="number" id="avgSchoolSizeInput" min="100" max="2000" step="10" value="500" style="margin-top: 10px;">
+                    <div class="value-display" id="sizeDisplay">500 Schüler</div>
+                    <div style="background: #eff6ff; padding: 10px; border-radius: 6px; margin-top: 10px; font-size: 0.85rem;">
+                        <strong>📊 Deutschland Ø:</strong><br>
+                        Grundschule: ~200 | Gymnasium: ~700 | Berufsschule: ~500
+                    </div>
+                </div>
+
+                <!-- SETUP-GEBÜHR -->
+                <div class="control-group">
+                    <label for="setupFee">🎯 Setup-Gebühr (einmalig)</label>
+                    <input type="range" id="setupFee" min="0" max="1000" step="50" value="200">
+                    <input type="number" id="setupFeeInput" min="0" max="1000" step="10" value="200" style="margin-top: 10px;">
+                    <div class="value-display" id="setupDisplay">€200</div>
+                    <div style="background: #fef3c7; padding: 10px; border-radius: 6px; margin-top: 10px; font-size: 0.85rem;">
+                        <strong>📊 Wettbewerber:</strong><br>
+                        Sdui: ~€500 | IServ: ~€300-600 | EduPage: €0
+                    </div>
+                </div>
+
+                <!-- ENTWICKLUNGSKOSTEN -->
+                <div class="control-group">
+                    <label for="devCost">💻 Entwicklung (monatlich)</label>
+                    <input type="range" id="devCost" min="5000" max="30000" step="1000" value="10000">
+                    <input type="number" id="devCostInput" min="5000" max="50000" step="500" value="10000" style="margin-top: 10px;">
+                    <div class="value-display" id="devDisplay">€10.000</div>
+                    <div contenteditable="true" id="devComment" class="editable-comment" style="background: #f0fdf4; padding: 10px; border-radius: 6px; margin-top: 10px; font-size: 0.85rem; border: 2px solid #d1fae5; min-height: 50px; cursor: text;" onblur="saveComment('devComment')">
+                        <strong>💡 Benchmark:</strong><br>
+                        1 Fullstack Dev: €5-8k | 2 Devs: €10-16k | Team (3+): €20k+
+                    </div>
+                    <div style="font-size: 0.75rem; color: #64748b; margin-top: 5px;">💡 Klick zum Bearbeiten</div>
+                </div>
+
+                <!-- MARKETING KOSTEN -->
+                <div class="control-group">
+                    <label for="marketingCost">📢 Marketing & Sales (monatlich)</label>
+                    <input type="range" id="marketingCost" min="500" max="15000" step="500" value="2000">
+                    <input type="number" id="marketingCostInput" min="500" max="20000" step="100" value="2000" style="margin-top: 10px;">
+                    <div class="value-display" id="marketingDisplay">€2.000</div>
+                    <div contenteditable="true" id="marketingComment" class="editable-comment" style="background: #f0fdf4; padding: 10px; border-radius: 6px; margin-top: 10px; font-size: 0.85rem; border: 2px solid #d1fae5; min-height: 50px; cursor: text;" onblur="saveComment('marketingComment')">
+                        <strong>💡 Benchmark:</strong><br>
+                        Frühe Phase: €1-3k | Wachstum: €5-10k | Scale-Up: €15k+
+                    </div>
+                    <div style="font-size: 0.75rem; color: #64748b; margin-top: 5px;">💡 Klick zum Bearbeiten</div>
+                </div>
+
+                <!-- INFRASTRUKTUR -->
+                <div class="control-group">
+                    <label for="infraCost">☁️ Infrastruktur/Server (monatlich)</label>
+                    <input type="range" id="infraCost" min="200" max="5000" step="100" value="500">
+                    <input type="number" id="infraCostInput" min="200" max="10000" step="50" value="500" style="margin-top: 10px;">
+                    <div class="value-display" id="infraDisplay">€500</div>
+                    <div contenteditable="true" id="infraComment" class="editable-comment" style="background: #f0fdf4; padding: 10px; border-radius: 6px; margin-top: 10px; font-size: 0.85rem; border: 2px solid #d1fae5; min-height: 50px; cursor: text;" onblur="saveComment('infraComment')">
+                        <strong>💡 Benchmark:</strong><br>
+                        <100 Schulen: €200-500 | 500 Schulen: €1-2k | 2000+ Schulen: €5k+
+                    </div>
+                    <div style="font-size: 0.75rem; color: #64748b; margin-top: 5px;">💡 Klick zum Bearbeiten</div>
+                </div>
+
+                <!-- SUPPORT KOSTEN -->
+                <div class="control-group">
+                    <label for="supportCost">🎧 Support & Operations (monatlich)</label>
+                    <input type="range" id="supportCost" min="500" max="10000" step="500" value="1500">
+                    <input type="number" id="supportCostInput" min="500" max="15000" step="100" value="1500" style="margin-top: 10px;">
+                    <div class="value-display" id="supportDisplay">€1.500</div>
+                    <div contenteditable="true" id="supportComment" class="editable-comment" style="background: #f0fdf4; padding: 10px; border-radius: 6px; margin-top: 10px; font-size: 0.85rem; border: 2px solid #d1fae5; min-height: 50px; cursor: text;" onblur="saveComment('supportComment')">
+                        <strong>💡 Benchmark:</strong><br>
+                        Teilzeit: €1-2k | Vollzeit: €3-5k | Team: €8k+
+                    </div>
+                    <div style="font-size: 0.75rem; color: #64748b; margin-top: 5px;">💡 Klick zum Bearbeiten</div>
+                </div>
+
+                <!-- SONSTIGE KOSTEN -->
+                <div class="control-group">
+                    <label for="otherCost">📋 Sonstiges (Legal, Tools, etc. monatlich)</label>
+                    <input type="range" id="otherCost" min="500" max="5000" step="250" value="1000">
+                    <input type="number" id="otherCostInput" min="500" max="8000" step="100" value="1000" style="margin-top: 10px;">
+                    <div class="value-display" id="otherDisplay">€1.000</div>
+                    <div contenteditable="true" id="otherComment" class="editable-comment" style="background: #f0fdf4; padding: 10px; border-radius: 6px; margin-top: 10px; font-size: 0.85rem; border: 2px solid #d1fae5; min-height: 50px; cursor: text;" onblur="saveComment('otherComment')">
+                        <strong>💡 Inkludiert:</strong><br>
+                        Buchhaltung, SaaS-Tools, Legal, Office, Versicherungen
+                    </div>
+                    <div style="font-size: 0.75rem; color: #64748b; margin-top: 5px;">💡 Klick zum Bearbeiten</div>
+                </div>
+
+                <!-- WACHSTUMSRATE JAHR 1 -->
+                <div class="control-group">
+                    <label for="growthYear1">📈 Schulen im Jahr 1 (Ende des Jahres)</label>
+                    <input type="range" id="growthYear1" min="5" max="100" step="5" value="15">
+                    <input type="number" id="growthYear1Input" min="5" max="100" step="1" value="15" style="margin-top: 10px;">
+                    <div class="value-display" id="growth1Display">15 Schulen</div>
+                    <div style="background: #eff6ff; padding: 10px; border-radius: 6px; margin-top: 10px; font-size: 0.85rem;">
+                        <strong>📊 Benchmark:</strong><br>
+                        Konservativ: 5-15 | Realistisch: 15-30 | Optimistisch: 30-50
+                    </div>
+                </div>
+
+                <!-- WACHSTUMSRATE JAHR 2 -->
+                <div class="control-group">
+                    <label for="growthYear2">📈 Schulen im Jahr 2 (kumulativ)</label>
+                    <input type="range" id="growthYear2" min="20" max="500" step="10" value="60">
+                    <input type="number" id="growthYear2Input" min="10" max="500" step="1" value="60" style="margin-top: 10px;">
+                    <div class="value-display" id="growth2Display">60 Schulen</div>
+                    <div style="background: #eff6ff; padding: 10px; border-radius: 6px; margin-top: 10px; font-size: 0.85rem;">
+                        <strong>📊 Benchmark:</strong><br>
+                        Konservativ: 30-50 | Realistisch: 60-100 | Optimistisch: 100-200
+                    </div>
+                </div>
+
+                <!-- WACHSTUMSRATE JAHR 3 -->
+                <div class="control-group">
+                    <label for="growthYear3">📈 Schulen im Jahr 3 (kumulativ)</label>
+                    <input type="range" id="growthYear3" min="50" max="1500" step="50" value="150">
+                    <input type="number" id="growthYear3Input" min="50" max="2000" step="10" value="150" style="margin-top: 10px;">
+                    <div class="value-display" id="growth3Display">150 Schulen</div>
+                    <div style="background: #eff6ff; padding: 10px; border-radius: 6px; margin-top: 10px; font-size: 0.85rem;">
+                        <strong>📊 Benchmark:</strong><br>
+                        Konservativ: 75-150 | Realistisch: 150-300 | Optimistisch: 300-500
+                    </div>
+                </div>
+
+                <!-- WACHSTUMSRATE JAHR 4 -->
+                <div class="control-group">
+                    <label for="growthYear4">📈 Schulen im Jahr 4 (kumulativ)</label>
+                    <input type="range" id="growthYear4" min="100" max="3000" step="100" value="300">
+                    <input type="number" id="growthYear4Input" min="100" max="5000" step="50" value="300" style="margin-top: 10px;">
+                    <div class="value-display" id="growth4Display">300 Schulen</div>
+                    <div style="background: #eff6ff; padding: 10px; border-radius: 6px; margin-top: 10px; font-size: 0.85rem;">
+                        <strong>📊 Benchmark:</strong><br>
+                        Konservativ: 150-300 | Realistisch: 300-600 | Optimistisch: 600-1.000
+                    </div>
+                </div>
+
+                <!-- WACHSTUMSRATE JAHR 5 -->
+                <div class="control-group">
+                    <label for="growthYear5">📈 Schulen im Jahr 5 (kumulativ)</label>
+                    <input type="range" id="growthYear5" min="200" max="5000" step="100" value="500">
+                    <input type="number" id="growthYear5Input" min="200" max="10000" step="100" value="500" style="margin-top: 10px;">
+                    <div class="value-display" id="growth5Display">500 Schulen</div>
+                    <div style="background: #eff6ff; padding: 10px; border-radius: 6px; margin-top: 10px; font-size: 0.85rem;">
+                        <strong>📊 Benchmark & Wettbewerber:</strong><br>
+                        Sdui: ~2.500 | IServ: ~5.400 | SchoolFox: ~5.000 (nach Jahren!)<br>
+                        Dein Ziel: 500-1.000 = 2,5-5% Marktanteil
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 30px;">
+                <button class="reset-btn" onclick="resetToDefaults()">🔄 Zurücksetzen auf Standard</button>
+                <button class="export-btn" onclick="exportData()">📥 Daten exportieren (JSON)</button>
+            </div>
+        </div>
+
+        <!-- KEY METRICS -->
+        <div class="key-metrics">
+            <div class="metric-card">
+                <div class="label">Umsatz pro Schule/Jahr</div>
+                <div class="value" id="arrPerSchool">€500</div>
+            </div>
+            <div class="metric-card">
+                <div class="label">Monatliche Fixkosten</div>
+                <div class="value" id="monthlyCosts">€15.000</div>
+            </div>
+            <div class="metric-card">
+                <div class="label">Jährliche Fixkosten</div>
+                <div class="value" id="yearlyCosts">€180.000</div>
+            </div>
+            <div class="metric-card">
+                <div class="label">Break-Even bei</div>
+                <div class="value" id="breakEvenSchools">360 Schulen</div>
+            </div>
+            <div class="metric-card">
+                <div class="label">Jahr 5 Umsatz (bei <span id="year5Schools">500</span> Schulen)</div>
+                <div class="value" id="year5Revenue">€250.000</div>
+            </div>
+        </div>
+
+        <!-- BREAK-EVEN ANALYSE -->
+        <div class="section">
+            <h2 class="section-title">⚖️ Break-Even Analyse</h2>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Kostenposition</th>
+                        <th>Monatlich</th>
+                        <th>Jährlich</th>
+                    </tr>
+                </thead>
+                <tbody id="costsTable">
+                    <!-- Filled by JavaScript -->
+                </tbody>
+            </table>
+
+            <div class="calculation-box" id="breakEvenCalc">
+                <!-- Filled by JavaScript -->
+            </div>
+
+            <div class="insight-box" id="breakEvenInsight">
+                <!-- Filled by JavaScript -->
+            </div>
+        </div>
+
+        <!-- 5-JAHRES PROJEKTION -->
+        <div class="section">
+            <h2 class="section-title">📊 5-Jahres Umsatzprojektion</h2>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Jahr</th>
+                        <th>Schulen (kumulativ)</th>
+                        <th>ARR pro Schule</th>
+                        <th>Jahresumsatz (ARR)</th>
+                        <th>Setup-Umsatz</th>
+                        <th>Gesamtumsatz</th>
+                        <th>MRR</th>
+                        <th>Gewinn/Verlust</th>
+                    </tr>
+                </thead>
+                <tbody id="projectionTable">
+                    <!-- Filled by JavaScript -->
+                </tbody>
+            </table>
+
+            <div class="insight-box success">
+                <h3>💡 Interpretation</h3>
+                <p id="interpretationText">Passe die Parameter an, um verschiedene Szenarien zu sehen!</p>
+            </div>
+        </div>
+
+        <!-- PREIS-SZENARIEN -->
+        <div class="section">
+            <h2 class="section-title">💶 Preis-Szenarien Vergleich</h2>
+            <p style="margin-bottom: 20px; color: #64748b;">Wie ändert sich Break-Even bei verschiedenen Preisen? (bei aktueller Schulgröße: <strong id="currentSchoolSize">500</strong> Schüler)</p>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Preis/Schüler/Jahr</th>
+                        <th>ARR pro Schule</th>
+                        <th>Schulen für Break-Even</th>
+                        <th>Zeit bis Break-Even (Jahre)</th>
+                        <th>vs. Sdui (€1,50)</th>
+                    </tr>
+                </thead>
+                <tbody id="priceScenariosTable">
+                    <!-- Filled by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- MARKTPOTENZIAL -->
+        <div class="section">
+            <h2 class="section-title">🎯 Marktpotenzial bei verschiedenen Marktanteilen</h2>
+            <p style="margin-bottom: 20px; color: #64748b;">Total Addressable Market (TAM): ~20.000 Schulen in Deutschland</p>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Marktanteil</th>
+                        <th>Anzahl Schulen</th>
+                        <th>Jahresumsatz (ARR)</th>
+                        <th>+ Setup (Jahr 1)</th>
+                        <th>Gesamtumsatz Jahr 1</th>
+                    </tr>
+                </thead>
+                <tbody id="marketShareTable">
+                    <!-- Filled by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- PREISSTRATEGIE EMPFEHLUNG -->
+        <div class="section" style="border: 3px solid #10b981;">
+            <h2 class="section-title" style="font-size: 2rem;">💡 Empfohlene Preisstrategie für BrightBox</h2>
+            <p style="font-size: 1.1rem; color: #64748b; margin-bottom: 30px;">
+                Basierend auf der Wettbewerbsanalyse und Break-Even-Berechnungen - Zwei-Tier-Modell für maximalen Erfolg!
+            </p>
+
+            <!-- HAUPT-EMPFEHLUNG -->
+            <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 40px; border-radius: 16px; margin-bottom: 40px;">
+                <h3 style="font-size: 1.8rem; margin-bottom: 20px;">🎯 BESTE STRATEGIE: Zwei-Tier-Modell</h3>
+                <p style="font-size: 1.2rem; line-height: 1.8; margin-bottom: 20px;">
+                    Starte günstig für schnelle Adoption, monetarisiere dann durch Premium-Features!
+                </p>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 30px;">
+                    <div style="background: rgba(255,255,255,0.15); padding: 25px; border-radius: 12px;">
+                        <h4 style="font-size: 1.3rem; margin-bottom: 15px;">📦 BASIC Plan</h4>
+                        <div style="font-size: 2.5rem; font-weight: 700; margin: 15px 0;">€1,00</div>
+                        <div style="font-size: 1.1rem; opacity: 0.9;">pro Schüler/Jahr</div>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.15); padding: 25px; border-radius: 12px;">
+                        <h4 style="font-size: 1.3rem; margin-bottom: 15px;">⭐ PREMIUM Plan</h4>
+                        <div style="font-size: 2.5rem; font-weight: 700; margin: 15px 0;">€1,80</div>
+                        <div style="font-size: 1.1rem; opacity: 0.9;">pro Schüler/Jahr</div>
+                    </div>
+                </div>
+                <div style="margin-top: 30px; padding-top: 30px; border-top: 2px solid rgba(255,255,255,0.3);">
+                    <strong style="font-size: 1.2rem;">📊 Durchschnittlicher Umsatz:</strong>
+                    <div style="font-size: 1.8rem; font-weight: 700; margin-top: 10px;">€1,30 - €1,40 pro Schüler</div>
+                    <div style="font-size: 1rem; opacity: 0.9; margin-top: 5px;">(bei 35-50% Premium-Anteil)</div>
+                </div>
+            </div>
+
+            <!-- DETAILLIERTE VERGLEICHS-TABELLE MIT EDITIERBAREN FEATURES -->
+            <h3 style="font-size: 1.5rem; color: #10b981; margin: 40px 0 20px 0;">✏️ Preis-Pläne (Features bearbeitbar)</h3>
+            <p style="color: #64748b; margin-bottom: 20px;">Klicke auf die Features um sie zu bearbeiten, zu löschen oder neue hinzuzufügen!</p>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 30px; margin-bottom: 40px;">
+                <!-- BASIC PLAN -->
+                <div style="background: #f8fafc; padding: 30px; border-radius: 12px; border: 3px solid #e2e8f0;">
+                    <h4 style="font-size: 1.3rem; margin-bottom: 10px; color: #1e293b;">📦 BASIC Plan</h4>
+                    <div style="font-size: 2rem; font-weight: 700; color: #10b981; margin: 15px 0;">€1,00</div>
+                    <div style="margin-bottom: 20px; color: #64748b;">pro Schüler/Jahr</div>
+                    
+                    <div class="editable-features" id="basicFeatures">
+                        <!-- Filled by JavaScript -->
+                    </div>
+                    <button class="add-feature-btn" onclick="addFeature('basic')">+ Feature hinzufügen</button>
+                </div>
+
+                <!-- PREMIUM PLAN -->
+                <div style="background: #f0fdf4; padding: 30px; border-radius: 12px; border: 3px solid #10b981;">
+                    <h4 style="font-size: 1.3rem; margin-bottom: 10px; color: #1e293b;">⭐ PREMIUM Plan</h4>
+                    <div style="font-size: 2rem; font-weight: 700; color: #10b981; margin: 15px 0;">€1,80</div>
+                    <div style="margin-bottom: 20px; color: #64748b;">pro Schüler/Jahr</div>
+                    
+                    <div class="editable-features" id="premiumFeatures">
+                        <!-- Filled by JavaScript -->
+                    </div>
+                    <button class="add-feature-btn" onclick="addFeature('premium')">+ Feature hinzufügen</button>
+                </div>
+
+                <!-- ENTERPRISE PLAN -->
+                <div style="background: #eff6ff; padding: 30px; border-radius: 12px; border: 3px solid #3b82f6;">
+                    <h4 style="font-size: 1.3rem; margin-bottom: 10px; color: #1e293b;">🏢 ENTERPRISE Plan</h4>
+                    <div style="font-size: 2rem; font-weight: 700; color: #3b82f6; margin: 15px 0;">€1,50</div>
+                    <div style="margin-bottom: 20px; color: #64748b;">pro Schüler/Jahr (Volumen)</div>
+                    
+                    <div class="editable-features" id="enterpriseFeatures">
+                        <!-- Filled by JavaScript -->
+                    </div>
+                    <button class="add-feature-btn" onclick="addFeature('enterprise')">+ Feature hinzufügen</button>
+                </div>
+            </div>
+
+            <!-- ORIGINAL STATIC TABLE FOR REFERENCE -->
+            <details style="margin-top: 30px;">
+                <summary style="cursor: pointer; font-weight: 600; color: #10b981; padding: 15px; background: #f0fdf4; border-radius: 8px;">
+                    📋 Original-Tabelle anzeigen (nicht editierbar)
+                </summary>
+            <table style="margin-top: 40px;">
+                <thead>
+                    <tr>
+                        <th>Plan</th>
+                        <th>Preis/Schüler/Jahr</th>
+                        <th>Setup-Gebühr</th>
+                        <th>Features</th>
+                        <th>Zielgruppe</th>
+                        <th>Umsatz (500 SuS)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>BASIC</strong></td>
+                        <td><strong>€1,00</strong></td>
+                        <td>€200<br><small>(€0 ab 1.000 SuS)</small></td>
+                        <td>
+                            ✅ One-Way Mitteilungen<br>
+                            ✅ Abwesenheitsmeldungen<br>
+                            ✅ Lesebestätigung<br>
+                            ✅ Stundenplan-View (WebUntis)<br>
+                            ✅ Multi-Language (Top 10)<br>
+                            ✅ Offline-Modus<br>
+                            ✅ Push-Notifications
+                        </td>
+                        <td>
+                            • Kleine Schulen (<300 SuS)<br>
+                            • Budget-bewusste Schulen<br>
+                            • Pilotprojekte<br>
+                            • Schneller Einstieg
+                        </td>
+                        <td><strong>€700</strong><br>(Jahr 1 inkl. Setup)</td>
+                    </tr>
+                    <tr style="background: #d1fae5;">
+                        <td><strong>⭐ PREMIUM</strong></td>
+                        <td><strong>€1,80</strong></td>
+                        <td>€150<br><small>(€0 ab 1.000 SuS)</small></td>
+                        <td>
+                            <strong>BASIC Features +</strong><br>
+                            ✅ Digitales Klassenbuch<br>
+                            ✅ Premium Analytics (Schulleitung)<br>
+                            ✅ Cloud-Speicher (10 GB/Schule)<br>
+                            ✅ Terminbuchung<br>
+                            ✅ Umfragen & Abstimmungen<br>
+                            ✅ Priority Support<br>
+                            ✅ API-Zugang<br>
+                            ✅ Custom Branding
+                        </td>
+                        <td>
+                            • Weiterführende Schulen<br>
+                            • Berufsschulen<br>
+                            • Privatschulen<br>
+                            • Tech-affine Schulen
+                        </td>
+                        <td><strong>€1.050</strong><br>(Jahr 1 inkl. Setup)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>ENTERPRISE</strong></td>
+                        <td><strong>€1,50</strong></td>
+                        <td>€0</td>
+                        <td>
+                            <strong>PREMIUM Features +</strong><br>
+                            ✅ White-Label<br>
+                            ✅ Dedizierte Instanz<br>
+                            ✅ SLA 99,9%<br>
+                            ✅ Dedicated Account Manager<br>
+                            ✅ Custom Entwicklung<br>
+                            ✅ Schulträger-Dashboard<br>
+                            ✅ Multi-School Management
+                        </td>
+                        <td>
+                            • Schulträger<br>
+                            • Kommunale Verbünde<br>
+                            • 10+ Schulen<br>
+                            • Volumen-Kunden
+                        </td>
+                        <td><strong>€750</strong><br>(Mengenrabatt)<br>+ Pauschalgebühr</td>
+                    </tr>
+                </tbody>
+            </table>
+            </details>
+
+            <!-- WETTBEWERBS-POSITIONIERUNG -->
+            <div style="margin-top: 40px;">
+                <h3 style="font-size: 1.5rem; color: #10b981; margin-bottom: 20px;">📊 Positionierung vs. Wettbewerb</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Anbieter</th>
+                            <th>Preis</th>
+                            <th>BrightBox BASIC</th>
+                            <th>BrightBox PREMIUM</th>
+                            <th>Vorteil</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>EduPage</strong></td>
+                            <td>€0,70</td>
+                            <td>+43% teurer</td>
+                            <td>+157% teurer</td>
+                            <td style="color: #ef4444;">❌ Günstiger</td>
+                        </tr>
+                        <tr style="background: #d1fae5;">
+                            <td><strong>Sdui</strong></td>
+                            <td>€1,50</td>
+                            <td style="color: #10b981; font-weight: 600;">✅ 33% günstiger</td>
+                            <td>+20% teurer</td>
+                            <td style="color: #10b981;">✅ BASIC günstiger</td>
+                        </tr>
+                        <tr>
+                            <td><strong>SchoolFox</strong></td>
+                            <td>€2,20</td>
+                            <td style="color: #10b981; font-weight: 600;">✅ 55% günstiger</td>
+                            <td style="color: #10b981; font-weight: 600;">✅ 18% günstiger</td>
+                            <td style="color: #10b981;">✅ Immer günstiger</td>
+                        </tr>
+                        <tr>
+                            <td><strong>IServ</strong></td>
+                            <td>€6,88</td>
+                            <td style="color: #10b981; font-weight: 600;">✅ 85% günstiger</td>
+                            <td style="color: #10b981; font-weight: 600;">✅ 74% günstiger</td>
+                            <td style="color: #10b981;">✅ Massiv günstiger</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- UMSATZ-HOCHRECHNUNG MIT ZWEI-TIER -->
+            <div style="margin-top: 50px;">
+                <h3 style="font-size: 1.5rem; color: #10b981; margin-bottom: 20px;">💰 Umsatz-Projektion mit Zwei-Tier-Modell</h3>
+                <p style="color: #64748b; margin-bottom: 20px;">
+                    Annahme: 60% wählen BASIC (€1,00), 40% wählen PREMIUM (€1,80) → Durchschnitt: €1,32/Schüler
+                </p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Jahr</th>
+                            <th>Schulen</th>
+                            <th>BASIC (60%)</th>
+                            <th>PREMIUM (40%)</th>
+                            <th>Ø Umsatz/Schule</th>
+                            <th>Gesamt ARR</th>
+                            <th>vs. Nur BASIC (€1,00)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Jahr 1</strong></td>
+                            <td>15</td>
+                            <td>9</td>
+                            <td>6</td>
+                            <td>€660</td>
+                            <td><strong>€9.900</strong></td>
+                            <td style="color: #10b981; font-weight: 600;">+32%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Jahr 2</strong></td>
+                            <td>60</td>
+                            <td>36</td>
+                            <td>24</td>
+                            <td>€660</td>
+                            <td><strong>€39.600</strong></td>
+                            <td style="color: #10b981; font-weight: 600;">+32%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Jahr 3</strong></td>
+                            <td>150</td>
+                            <td>90</td>
+                            <td>60</td>
+                            <td>€660</td>
+                            <td><strong>€99.000</strong></td>
+                            <td style="color: #10b981; font-weight: 600;">+32%</td>
+                        </tr>
+                        <tr style="background: #d1fae5;">
+                            <td><strong>Jahr 4</strong></td>
+                            <td>300</td>
+                            <td>180</td>
+                            <td>120</td>
+                            <td>€660</td>
+                            <td><strong>€198.000</strong></td>
+                            <td style="color: #10b981; font-weight: 600;">+32% → Break-Even erreicht!</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Jahr 5</strong></td>
+                            <td>500</td>
+                            <td>300</td>
+                            <td>200</td>
+                            <td>€660</td>
+                            <td><strong>€330.000</strong></td>
+                            <td style="color: #10b981; font-weight: 600;">+32% (+€80.000!)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- KRITISCHE ERFOLGSFAKTOREN -->
+            <div class="insight-box success" style="margin-top: 40px;">
+                <h3>✅ Warum diese Strategie funktioniert</h3>
+                <ul style="list-style: none; margin-left: 0;">
+                    <li style="padding: 12px 0; padding-left: 35px; position: relative;">
+                        <span style="position: absolute; left: 0; font-size: 1.3rem; font-weight: 700;">1.</span>
+                        <strong>Niedriger Einstieg (€1,00 BASIC):</strong> Keine Angst vor hohen Kosten → schnelle Adoption
+                    </li>
+                    <li style="padding: 12px 0; padding-left: 35px; position: relative;">
+                        <span style="position: absolute; left: 0; font-size: 1.3rem; font-weight: 700;">2.</span>
+                        <strong>Natürliches Upselling:</strong> Schulen merken schnell, dass sie mehr Features brauchen
+                    </li>
+                    <li style="padding: 12px 0; padding-left: 35px; position: relative;">
+                        <span style="position: absolute; left: 0; font-size: 1.3rem; font-weight: 700;">3.</span>
+                        <strong>32% mehr Umsatz:</strong> Bei gleichem Kundenstamm vs. Einheitspreis €1,00
+                    </li>
+                    <li style="padding: 12px 0; padding-left: 35px; position: relative;">
+                        <span style="position: absolute; left: 0; font-size: 1.3rem; font-weight: 700;">4.</span>
+                        <strong>Break-Even 1 Jahr früher:</strong> Mit €1,32 Durchschnitt statt €1,00
+                    </li>
+                    <li style="padding: 12px 0; padding-left: 35px; position: relative;">
+                        <span style="position: absolute; left: 0; font-size: 1.3rem; font-weight: 700;">5.</span>
+                        <strong>Wettbewerbsfähig:</strong> BASIC 33% günstiger als Sdui, PREMIUM nur 20% teurer
+                    </li>
+                    <li style="padding: 12px 0; padding-left: 35px; position: relative;">
+                        <span style="position: absolute; left: 0; font-size: 1.3rem; font-weight: 700;">6.</span>
+                        <strong>Qualitätssignal:</strong> Zwei Tiers zeigen Professionalität, nicht "Billig-Lösung"
+                    </li>
+                </ul>
+            </div>
+
+            <!-- ALTERNATIVE STRATEGIEN -->
+            <div style="margin-top: 40px;">
+                <h3 style="font-size: 1.5rem; color: #10b981; margin-bottom: 20px;">🔄 Alternative Strategien (wenn Zwei-Tier nicht passt)</h3>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="insight-box warning" style="margin: 0;">
+                        <h4 style="font-size: 1.2rem; margin-bottom: 15px;">Plan B: Einheitspreis €1,28</h4>
+                        <p style="margin-bottom: 10px;"><strong>Vorteil:</strong> Einfach, keine Verwirrung</p>
+                        <p style="margin-bottom: 10px;"><strong>Nachteil:</strong> Kein Upselling-Potenzial</p>
+                        <p style="margin-bottom: 10px;"><strong>Empfehlung:</strong> Nur wenn du kein Premium entwickeln willst</p>
+                        <p style="font-weight: 600; color: #ef4444;">Break-Even: ~280 Schulen (Jahr 3,5)</p>
+                    </div>
+
+                    <div class="insight-box info" style="margin: 0;">
+                        <h4 style="font-size: 1.2rem; margin-bottom: 15px;">Plan C: Freemium + Premium</h4>
+                        <p style="margin-bottom: 10px;"><strong>FREE:</strong> Bis 200 Schüler GRATIS</p>
+                        <p style="margin-bottom: 10px;"><strong>PREMIUM:</strong> €1,80 ab 200+ Schüler</p>
+                        <p style="margin-bottom: 10px;"><strong>Vorteil:</strong> Virale Verbreitung</p>
+                        <p style="font-weight: 600; color: #ef4444;">Risiko: Zu viele bleiben bei FREE</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FINALE EMPFEHLUNG -->
+            <div style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: white; padding: 50px; border-radius: 16px; margin-top: 50px; text-align: center;">
+                <h3 style="font-size: 2rem; margin-bottom: 20px;">🎯 FINALE EMPFEHLUNG</h3>
+                <p style="font-size: 1.3rem; line-height: 1.8; margin-bottom: 30px;">
+                    Starte mit dem <strong>Zwei-Tier-Modell</strong> (BASIC €1,00 + PREMIUM €1,80)
+                </p>
+                <div style="background: rgba(255,255,255,0.2); padding: 30px; border-radius: 12px; margin-bottom: 30px;">
+                    <div style="font-size: 1.2rem; margin-bottom: 15px;">Break-Even erreicht in:</div>
+                    <div style="font-size: 3rem; font-weight: 700;">~3 Jahre</div>
+                    <div style="font-size: 1.1rem; opacity: 0.9;">(bei 250-280 Schulen)</div>
+                </div>
+                <p style="font-size: 1.1rem; line-height: 1.6;">
+                    Du bist <strong>wettbewerbsfähig</strong>, hast <strong>Upselling-Potenzial</strong> und erreichst Break-Even <strong>1 Jahr früher</strong> als mit Einheitspreis!
+                </p>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        // ==================== VERSION MANAGEMENT & EDITABLE FEATURES ====================
+        
+        // DEFAULT FEATURES
+        const defaultFeatures = {
+            basic: [
+                "✅ One-Way Mitteilungen",
+                "✅ Abwesenheitsmeldungen",
+                "✅ Lesebestätigung",
+                "✅ Stundenplan-View (WebUntis)",
+                "✅ Multi-Language (Top 10)",
+                "✅ Offline-Modus",
+                "✅ Push-Notifications"
+            ],
+            premium: [
+                "✅ Alle BASIC Features",
+                "✅ Digitales Klassenbuch",
+                "✅ Premium Analytics (Schulleitung)",
+                "✅ Cloud-Speicher (10 GB/Schule)",
+                "✅ Terminbuchung",
+                "✅ Umfragen & Abstimmungen",
+                "✅ Priority Support",
+                "✅ API-Zugang",
+                "✅ Custom Branding"
+            ],
+            enterprise: [
+                "✅ Alle PREMIUM Features",
+                "✅ White-Label",
+                "✅ Dedizierte Instanz",
+                "✅ SLA 99,9%",
+                "✅ Dedicated Account Manager",
+                "✅ Custom Entwicklung",
+                "✅ Schulträger-Dashboard",
+                "✅ Multi-School Management"
+            ]
+        };
+
+        // CURRENT STATE
+        let currentFeatures = JSON.parse(JSON.stringify(defaultFeatures));
+        let savedVersions = JSON.parse(localStorage.getItem('brightboxVersions') || '[]');
+        let customComments = JSON.parse(localStorage.getItem('brightboxComments') || '{}');
+
+        // LOAD SAVED COMMENTS
+        function loadComments() {
+            const commentIds = ['devComment', 'marketingComment', 'infraComment', 'supportComment', 'otherComment'];
+            commentIds.forEach(id => {
+                const element = document.getElementById(id);
+                if (element && customComments[id]) {
+                    element.innerHTML = customComments[id];
+                }
+            });
+        }
+
+        // SAVE COMMENT
+        function saveComment(commentId) {
+            const element = document.getElementById(commentId);
+            if (element) {
+                customComments[commentId] = element.innerHTML;
+                localStorage.setItem('brightboxComments', JSON.stringify(customComments));
+            }
+        }
+
+        // RENDER FEATURES
+        function renderFeatures() {
+            ['basic', 'premium', 'enterprise'].forEach(plan => {
+                const container = document.getElementById(plan + 'Features');
+                if (!container) return;
+                
+                container.innerHTML = currentFeatures[plan].map((feature, index) => `
+                    <div class="feature-item">
+                        <input type="text" value="${feature.replace(/"/g, '&quot;')}" onchange="updateFeature('${plan}', ${index}, this.value)">
+                        <button onclick="deleteFeature('${plan}', ${index})" title="Feature löschen">❌</button>
+                    </div>
+                `).join('');
+            });
+        }
+
+        // UPDATE FEATURE
+        function updateFeature(plan, index, value) {
+            currentFeatures[plan][index] = value;
+        }
+
+        // DELETE FEATURE
+        function deleteFeature(plan, index) {
+            if (confirm('Feature wirklich löschen?')) {
+                currentFeatures[plan].splice(index, 1);
+                renderFeatures();
+            }
+        }
+
+        // ADD FEATURE
+        function addFeature(plan) {
+            const newFeature = prompt('Neues Feature eingeben:', '✅ Neues Feature');
+            if (newFeature) {
+                currentFeatures[plan].push(newFeature);
+                renderFeatures();
+            }
+        }
+
+        // SAVE VERSION
+        function saveVersion() {
+            const versionName = document.getElementById('versionName').value.trim();
+            if (!versionName) {
+                alert('⚠️ Bitte gib einen Namen für die Version ein!');
+                return;
+            }
+            
+            const version = {
+                id: Date.now(),
+                name: versionName,
+                timestamp: new Date().toISOString(),
+                parameters: {
+                    pricePerStudent: parseFloat(inputs.pricePerStudent.value),
+                    avgSchoolSize: parseInt(inputs.avgSchoolSize.value),
+                    setupFee: parseInt(inputs.setupFee.value),
+                    devCost: parseInt(inputs.devCost.value),
+                    marketingCost: parseInt(inputs.marketingCost.value),
+                    infraCost: parseInt(inputs.infraCost.value),
+                    supportCost: parseInt(inputs.supportCost.value),
+                    otherCost: parseInt(inputs.otherCost.value),
+                    growthYear1: parseInt(inputs.growthYear1.value),
+                    growthYear2: parseInt(inputs.growthYear2.value),
+                    growthYear3: parseInt(inputs.growthYear3.value),
+                    growthYear4: parseInt(inputs.growthYear4.value),
+                    growthYear5: parseInt(inputs.growthYear5.value)
+                },
+                features: JSON.parse(JSON.stringify(currentFeatures)),
+                comments: JSON.parse(JSON.stringify(customComments))
+            };
+
+            savedVersions.push(version);
+            localStorage.setItem('brightboxVersions', JSON.stringify(savedVersions));
+            
+            renderVersionsList();
+            document.getElementById('versionName').value = '';
+            alert('✅ Version "' + versionName + '" erfolgreich gespeichert!');
+        }
+
+        // LOAD VERSION
+        function loadVersion(id) {
+            const version = savedVersions.find(v => v.id === id);
+            if (!version) return;
+
+            // Load parameters
+            Object.keys(version.parameters).forEach(key => {
+                if (inputs[key]) {
+                    inputs[key].value = version.parameters[key];
+                }
+            });
+            
+            // Load features
+            currentFeatures = JSON.parse(JSON.stringify(version.features));
+            
+            // Load comments if available
+            if (version.comments) {
+                customComments = JSON.parse(JSON.stringify(version.comments));
+                loadComments();
+            }
+            
+            // Update UI
+            updateDisplays();
+            calculate();
+            renderFeatures();
+            renderVersionsList();
+            
+            alert('✅ Version "' + version.name + '" geladen!');
+        }
+
+        // DELETE VERSION
+        function deleteVersion(id) {
+            const version = savedVersions.find(v => v.id === id);
+            if (!version) return;
+            
+            if (!confirm('Version "' + version.name + '" wirklich löschen?')) return;
+            
+            savedVersions = savedVersions.filter(v => v.id !== id);
+            localStorage.setItem('brightboxVersions', JSON.stringify(savedVersions));
+            renderVersionsList();
+        }
+
+        // CLEAR ALL VERSIONS
+        function clearAllVersions() {
+            if (!confirm('Wirklich ALLE ' + savedVersions.length + ' Versionen löschen?')) return;
+            
+            savedVersions = [];
+            localStorage.removeItem('brightboxVersions');
+            renderVersionsList();
+            alert('✅ Alle Versionen gelöscht!');
+        }
+
+        // RENDER VERSIONS LIST
+        function renderVersionsList() {
+            const container = document.getElementById('savedVersionsList');
+            
+            if (savedVersions.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 30px; color: #64748b;">Keine gespeicherten Versionen. Erstelle deine erste Version oben!</div>';
+                return;
+            }
+
+            container.innerHTML = savedVersions.map(version => {
+                const date = new Date(version.timestamp);
+                const dateStr = date.toLocaleDateString('de-DE', { 
+                    year: 'numeric', month: '2-digit', day: '2-digit',
+                    hour: '2-digit', minute: '2-digit'
+                });
+                
+                return `
+                    <div class="version-item">
+                        <div class="version-info">
+                            <div class="version-name">📌 ${version.name}</div>
+                            <div class="version-details">
+                                ${dateStr} | 
+                                Preis: €${version.parameters.pricePerStudent.toFixed(2)} | 
+                                Schulgröße: ${version.parameters.avgSchoolSize} SuS | 
+                                Setup: €${version.parameters.setupFee} |
+                                Jahr 5: ${version.parameters.growthYear5} Schulen
+                            </div>
+                        </div>
+                        <div class="version-actions">
+                            <button class="load-btn" onclick="loadVersion(${version.id})">📂 Laden</button>
+                            <button class="delete-version-btn" onclick="deleteVersion(${version.id})">🗑️</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // EXPORT ALL VERSIONS
+        function exportAllVersions() {
+            if (savedVersions.length === 0) {
+                alert('⚠️ Keine Versionen zum Exportieren vorhanden!');
+                return;
+            }
+            
+            const data = {
+                versions: savedVersions,
+                exportDate: new Date().toISOString(),
+                totalVersions: savedVersions.length
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'brightbox-versionen-' + new Date().toISOString().split('T')[0] + '.json';
+            a.click();
+            
+            alert('✅ ' + savedVersions.length + ' Versionen exportiert!');
+        }
+
+        // ==================== ORIGINAL CALCULATOR CODE ====================
+        
+        // DEFAULT WERTE
+        const defaults = {
+            pricePerStudent: 1.0,
+            avgSchoolSize: 500,
+            setupFee: 200,
+            devCost: 10000,
+            marketingCost: 2000,
+            infraCost: 500,
+            supportCost: 1500,
+            otherCost: 1000,
+            growthYear1: 15,
+            growthYear2: 60,
+            growthYear3: 150,
+            growthYear4: 300,
+            growthYear5: 500
+        };
+
+        // ALLE INPUTS
+        const inputs = {
+            pricePerStudent: document.getElementById('pricePerStudent'),
+            avgSchoolSize: document.getElementById('avgSchoolSize'),
+            setupFee: document.getElementById('setupFee'),
+            devCost: document.getElementById('devCost'),
+            marketingCost: document.getElementById('marketingCost'),
+            infraCost: document.getElementById('infraCost'),
+            supportCost: document.getElementById('supportCost'),
+            otherCost: document.getElementById('otherCost'),
+            growthYear1: document.getElementById('growthYear1'),
+            growthYear2: document.getElementById('growthYear2'),
+            growthYear3: document.getElementById('growthYear3'),
+            growthYear4: document.getElementById('growthYear4'),
+            growthYear5: document.getElementById('growthYear5')
+        };
+
+        // FORMAT FUNKTIONEN
+        function formatEuro(num) {
+            return '€' + num.toLocaleString('de-DE', {minimumFractionDigits: 0, maximumFractionDigits: 0});
+        }
+
+        function formatEuroDecimal(num) {
+            return '€' + num.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        }
+
+        // UPDATE DISPLAYS
+        function updateDisplays() {
+            document.getElementById('priceDisplay').textContent = formatEuroDecimal(parseFloat(inputs.pricePerStudent.value));
+            document.getElementById('pricePerStudentInput').value = parseFloat(inputs.pricePerStudent.value).toFixed(2);
+            
+            document.getElementById('sizeDisplay').textContent = inputs.avgSchoolSize.value + ' Schüler';
+            document.getElementById('avgSchoolSizeInput').value = inputs.avgSchoolSize.value;
+            
+            document.getElementById('setupDisplay').textContent = formatEuro(parseInt(inputs.setupFee.value));
+            document.getElementById('setupFeeInput').value = inputs.setupFee.value;
+            
+            document.getElementById('devDisplay').textContent = formatEuro(parseInt(inputs.devCost.value));
+            document.getElementById('devCostInput').value = inputs.devCost.value;
+            
+            document.getElementById('marketingDisplay').textContent = formatEuro(parseInt(inputs.marketingCost.value));
+            document.getElementById('marketingCostInput').value = inputs.marketingCost.value;
+            
+            document.getElementById('infraDisplay').textContent = formatEuro(parseInt(inputs.infraCost.value));
+            document.getElementById('infraCostInput').value = inputs.infraCost.value;
+            
+            document.getElementById('supportDisplay').textContent = formatEuro(parseInt(inputs.supportCost.value));
+            document.getElementById('supportCostInput').value = inputs.supportCost.value;
+            
+            document.getElementById('otherDisplay').textContent = formatEuro(parseInt(inputs.otherCost.value));
+            document.getElementById('otherCostInput').value = inputs.otherCost.value;
+            
+            document.getElementById('growth1Display').textContent = inputs.growthYear1.value + ' Schulen';
+            document.getElementById('growthYear1Input').value = inputs.growthYear1.value;
+            
+            document.getElementById('growth2Display').textContent = inputs.growthYear2.value + ' Schulen';
+            document.getElementById('growthYear2Input').value = inputs.growthYear2.value;
+            
+            document.getElementById('growth3Display').textContent = inputs.growthYear3.value + ' Schulen';
+            document.getElementById('growthYear3Input').value = inputs.growthYear3.value;
+            
+            document.getElementById('growth4Display').textContent = inputs.growthYear4.value + ' Schulen';
+            document.getElementById('growthYear4Input').value = inputs.growthYear4.value;
+            
+            document.getElementById('growth5Display').textContent = inputs.growthYear5.value + ' Schulen';
+            document.getElementById('growthYear5Input').value = inputs.growthYear5.value;
+        }
+
+        // BERECHNE ALLES
+        function calculate() {
+            const price = parseFloat(inputs.pricePerStudent.value);
+            const schoolSize = parseInt(inputs.avgSchoolSize.value);
+            const setupFee = parseInt(inputs.setupFee.value);
+            const devCost = parseInt(inputs.devCost.value);
+            const marketingCost = parseInt(inputs.marketingCost.value);
+            const infraCost = parseInt(inputs.infraCost.value);
+            const supportCost = parseInt(inputs.supportCost.value);
+            const otherCost = parseInt(inputs.otherCost.value);
+
+            const growth = [
+                parseInt(inputs.growthYear1.value),
+                parseInt(inputs.growthYear2.value),
+                parseInt(inputs.growthYear3.value),
+                parseInt(inputs.growthYear4.value),
+                parseInt(inputs.growthYear5.value)
+            ];
+
+            // KOSTEN
+            const monthlyCosts = devCost + marketingCost + infraCost + supportCost + otherCost;
+            const yearlyCosts = monthlyCosts * 12;
+
+            // ARR PRO SCHULE
+            const arrPerSchool = price * schoolSize;
+
+            // BREAK-EVEN
+            const breakEvenSchools = Math.ceil(yearlyCosts / arrPerSchool);
+
+            // UPDATE KEY METRICS
+            document.getElementById('arrPerSchool').textContent = formatEuro(arrPerSchool);
+            document.getElementById('monthlyCosts').textContent = formatEuro(monthlyCosts);
+            document.getElementById('yearlyCosts').textContent = formatEuro(yearlyCosts);
+            document.getElementById('breakEvenSchools').textContent = breakEvenSchools + ' Schulen';
+            document.getElementById('year5Schools').textContent = growth[4];
+            document.getElementById('year5Revenue').textContent = formatEuro(growth[4] * arrPerSchool);
+
+            // UPDATE COSTS TABLE
+            updateCostsTable(devCost, marketingCost, infraCost, supportCost, otherCost, monthlyCosts, yearlyCosts);
+
+            // UPDATE BREAK-EVEN CALC
+            updateBreakEvenCalc(yearlyCosts, arrPerSchool, setupFee, breakEvenSchools);
+
+            // UPDATE PROJECTION TABLE
+            updateProjectionTable(growth, arrPerSchool, setupFee, yearlyCosts);
+
+            // UPDATE PRICE SCENARIOS
+            updatePriceScenariosTable(schoolSize, yearlyCosts, setupFee);
+
+            // UPDATE MARKET SHARE TABLE
+            updateMarketShareTable(arrPerSchool, setupFee);
+
+            // UPDATE CURRENT SCHOOL SIZE
+            document.getElementById('currentSchoolSize').textContent = schoolSize;
+        }
+
+        function updateCostsTable(dev, marketing, infra, support, other, monthly, yearly) {
+            const tbody = document.getElementById('costsTable');
+            tbody.innerHTML = `
+                <tr>
+                    <td><strong>Entwicklung</strong></td>
+                    <td>${formatEuro(dev)}</td>
+                    <td>${formatEuro(dev * 12)}</td>
+                </tr>
+                <tr>
+                    <td><strong>Marketing & Sales</strong></td>
+                    <td>${formatEuro(marketing)}</td>
+                    <td>${formatEuro(marketing * 12)}</td>
+                </tr>
+                <tr>
+                    <td><strong>Infrastruktur</strong></td>
+                    <td>${formatEuro(infra)}</td>
+                    <td>${formatEuro(infra * 12)}</td>
+                </tr>
+                <tr>
+                    <td><strong>Support & Operations</strong></td>
+                    <td>${formatEuro(support)}</td>
+                    <td>${formatEuro(support * 12)}</td>
+                </tr>
+                <tr>
+                    <td><strong>Sonstiges</strong></td>
+                    <td>${formatEuro(other)}</td>
+                    <td>${formatEuro(other * 12)}</td>
+                </tr>
+                <tr class="highlight-row">
+                    <td><strong>GESAMT</strong></td>
+                    <td><strong>${formatEuro(monthly)}</strong></td>
+                    <td><strong>${formatEuro(yearly)}</strong></td>
+                </tr>
+            `;
+        }
+
+        function updateBreakEvenCalc(yearlyCosts, arrPerSchool, setupFee, breakEvenSchools) {
+            const avgFirstYear = arrPerSchool + (setupFee * 0.7); // Annahme: 70% zahlen Setup
+            
+            const box = document.getElementById('breakEvenCalc');
+            box.innerHTML = `
+                <strong>💡 Break-Even Rechnung:</strong><br><br>
+                Jährliche Fixkosten: ${formatEuro(yearlyCosts)}<br>
+                Ø ARR pro Schule: ${formatEuro(arrPerSchool)}<br>
+                Ø Setup-Umsatz pro Schule: ${formatEuro(setupFee * 0.7)}<br>
+                <strong>→ Ø Gesamtumsatz pro Schule (Jahr 1-3): ${formatEuro(avgFirstYear)}</strong><br><br>
+                
+                <strong>Break-Even bei: ${formatEuro(yearlyCosts)} ÷ ${formatEuro(avgFirstYear)} = ${breakEvenSchools} Schulen</strong>
+            `;
+
+            const insight = document.getElementById('breakEvenInsight');
+            if (breakEvenSchools <= 200) {
+                insight.className = 'insight-box success';
+                insight.innerHTML = `
+                    <h3>✅ Gute Nachrichten!</h3>
+                    <p>Mit nur ${breakEvenSchools} Schulen erreichst du Break-Even. Das ist ein realistisches Ziel innerhalb von 2-3 Jahren!</p>
+                `;
+            } else if (breakEvenSchools <= 400) {
+                insight.className = 'insight-box warning';
+                insight.innerHTML = `
+                    <h3>⚠️ Herausfordernd aber machbar</h3>
+                    <p>${breakEvenSchools} Schulen für Break-Even bedeutet 3-4 Jahre bis zur Profitabilität. Überlege dir Premium-Features für höhere ARR!</p>
+                `;
+            } else {
+                insight.className = 'insight-box warning';
+                insight.innerHTML = `
+                    <h3>🚨 Kritisch: Break-Even zu hoch!</h3>
+                    <p>${breakEvenSchools} Schulen sind sehr schwer zu erreichen. Du solltest entweder die Preise erhöhen oder die Kosten senken.</p>
+                `;
+            }
+        }
+
+        function updateProjectionTable(growth, arrPerSchool, setupFee, yearlyCosts) {
+            const tbody = document.getElementById('projectionTable');
+            let html = '';
+
+            for (let i = 0; i < 5; i++) {
+                const schools = growth[i];
+                const arr = schools * arrPerSchool;
+                const setupRevenue = (i === 0 ? schools : (schools - growth[i-1])) * setupFee * 0.7;
+                const totalRevenue = arr + setupRevenue;
+                const mrr = arr / 12;
+                const profitLoss = totalRevenue - yearlyCosts;
+                const profitColor = profitLoss >= 0 ? '#10b981' : '#ef4444';
+
+                html += `
+                    <tr class="${i === 4 ? 'highlight-row' : ''}">
+                        <td><strong>Jahr ${i + 1}</strong></td>
+                        <td>${schools}</td>
+                        <td>${formatEuro(arrPerSchool)}</td>
+                        <td>${formatEuro(arr)}</td>
+                        <td>${formatEuro(setupRevenue)}</td>
+                        <td><strong>${formatEuro(totalRevenue)}</strong></td>
+                        <td>${formatEuro(mrr)}</td>
+                        <td style="color: ${profitColor}; font-weight: 600;">${formatEuro(profitLoss)}</td>
+                    </tr>
+                `;
+            }
+
+            tbody.innerHTML = html;
+
+            // UPDATE INTERPRETATION
+            const year5Profit = (growth[4] * arrPerSchool) - yearlyCosts;
+            const breakEvenYear = growth.findIndex((schools, i) => {
+                const revenue = schools * arrPerSchool + (i === 0 ? schools : (schools - growth[i-1])) * setupFee * 0.7;
+                return revenue >= yearlyCosts;
+            });
+
+            let interpretation = '';
+            if (breakEvenYear === -1) {
+                interpretation = '⚠️ <strong>Break-Even wird in 5 Jahren nicht erreicht.</strong> Überdenke deine Preisstrategie oder senke die Kosten!';
+            } else {
+                interpretation = `✅ <strong>Break-Even wird in Jahr ${breakEvenYear + 1} erreicht!</strong> Ab dann bist du profitabel. In Jahr 5 machst du ${formatEuro(year5Profit)} Gewinn.`;
+            }
+
+            document.getElementById('interpretationText').innerHTML = interpretation;
+        }
+
+        function updatePriceScenariosTable(schoolSize, yearlyCosts, setupFee) {
+            const tbody = document.getElementById('priceScenariosTable');
+            const prices = [0.8, 1.0, 1.28, 1.5, 2.0, 2.5];
+            let html = '';
+
+            prices.forEach(price => {
+                const arr = price * schoolSize;
+                const avgRevenue = arr + (setupFee * 0.7);
+                const breakEven = Math.ceil(yearlyCosts / avgRevenue);
+                const timeToBreakEven = (breakEven / 100).toFixed(1); // Annahme: 100 Schulen/Jahr
+                const vsSdui = ((price - 1.5) / 1.5 * 100).toFixed(0);
+                const vsSduiText = vsSdui > 0 ? `+${vsSdui}%` : `${vsSdui}%`;
+
+                html += `
+                    <tr>
+                        <td><strong>${formatEuroDecimal(price)}</strong></td>
+                        <td>${formatEuro(arr)}</td>
+                        <td>${breakEven} Schulen</td>
+                        <td>${timeToBreakEven} Jahre</td>
+                        <td>${vsSduiText}</td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        function updateMarketShareTable(arrPerSchool, setupFee) {
+            const tbody = document.getElementById('marketShareTable');
+            const marketShares = [
+                { label: '0,5% (Minimal)', schools: 100 },
+                { label: '1% (Nische)', schools: 200 },
+                { label: '2,5% (Realistisch)', schools: 500, highlight: true },
+                { label: '5% (Ambitioniert)', schools: 1000 },
+                { label: '7,5% (Marktführer Nische)', schools: 1500 },
+                { label: '10% (Dominanz)', schools: 2000 }
+            ];
+
+            let html = '';
+            marketShares.forEach(ms => {
+                const arr = ms.schools * arrPerSchool;
+                const setupRevenue = ms.schools * setupFee * 0.7;
+                const total = arr + setupRevenue;
+
+                html += `
+                    <tr class="${ms.highlight ? 'scenario-realistic' : ''}">
+                        <td>${ms.label}</td>
+                        <td>${ms.schools}</td>
+                        <td>${formatEuro(arr)}</td>
+                        <td>${formatEuro(setupRevenue)}</td>
+                        <td><strong>${formatEuro(total)}</strong></td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        // RESET FUNKTION
+        function resetToDefaults() {
+            Object.keys(defaults).forEach(key => {
+                inputs[key].value = defaults[key];
+            });
+            updateDisplays();
+            calculate();
+        }
+
+        // EXPORT FUNKTION
+        function exportData() {
+            const data = {
+                parameters: {
+                    pricePerStudent: parseFloat(inputs.pricePerStudent.value),
+                    avgSchoolSize: parseInt(inputs.avgSchoolSize.value),
+                    setupFee: parseInt(inputs.setupFee.value),
+                    costs: {
+                        development: parseInt(inputs.devCost.value),
+                        marketing: parseInt(inputs.marketingCost.value),
+                        infrastructure: parseInt(inputs.infraCost.value),
+                        support: parseInt(inputs.supportCost.value),
+                        other: parseInt(inputs.otherCost.value)
+                    },
+                    growth: {
+                        year1: parseInt(inputs.growthYear1.value),
+                        year2: parseInt(inputs.growthYear2.value),
+                        year3: parseInt(inputs.growthYear3.value),
+                        year4: parseInt(inputs.growthYear4.value),
+                        year5: parseInt(inputs.growthYear5.value)
+                    }
+                },
+                calculations: {
+                    arrPerSchool: parseFloat(inputs.pricePerStudent.value) * parseInt(inputs.avgSchoolSize.value),
+                    monthlyCosts: parseInt(inputs.devCost.value) + parseInt(inputs.marketingCost.value) + 
+                                  parseInt(inputs.infraCost.value) + parseInt(inputs.supportCost.value) + 
+                                  parseInt(inputs.otherCost.value),
+                    yearlyCosts: (parseInt(inputs.devCost.value) + parseInt(inputs.marketingCost.value) + 
+                                  parseInt(inputs.infraCost.value) + parseInt(inputs.supportCost.value) + 
+                                  parseInt(inputs.otherCost.value)) * 12
+                },
+                timestamp: new Date().toISOString()
+            };
+
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'brightbox-calculator-' + new Date().toISOString().split('T')[0] + '.json';
+            a.click();
+        }
+
+        // EVENT LISTENERS
+        Object.values(inputs).forEach(input => {
+            input.addEventListener('input', () => {
+                updateDisplays();
+                calculate();
+            });
+        });
+
+        // Sync between slider and number input for all parameters
+        const numberInputs = [
+            { slider: inputs.pricePerStudent, input: document.getElementById('pricePerStudentInput') },
+            { slider: inputs.avgSchoolSize, input: document.getElementById('avgSchoolSizeInput') },
+            { slider: inputs.setupFee, input: document.getElementById('setupFeeInput') },
+            { slider: inputs.devCost, input: document.getElementById('devCostInput') },
+            { slider: inputs.marketingCost, input: document.getElementById('marketingCostInput') },
+            { slider: inputs.infraCost, input: document.getElementById('infraCostInput') },
+            { slider: inputs.supportCost, input: document.getElementById('supportCostInput') },
+            { slider: inputs.otherCost, input: document.getElementById('otherCostInput') },
+            { slider: inputs.growthYear1, input: document.getElementById('growthYear1Input') },
+            { slider: inputs.growthYear2, input: document.getElementById('growthYear2Input') },
+            { slider: inputs.growthYear3, input: document.getElementById('growthYear3Input') },
+            { slider: inputs.growthYear4, input: document.getElementById('growthYear4Input') },
+            { slider: inputs.growthYear5, input: document.getElementById('growthYear5Input') }
+        ];
+
+        numberInputs.forEach(pair => {
+            pair.input.addEventListener('input', () => {
+                pair.slider.value = pair.input.value;
+                updateDisplays();
+                calculate();
+            });
+        });
+
+        // INITIAL BERECHNUNG
+        updateDisplays();
+        calculate();
+        renderFeatures();
+        renderVersionsList();
+        loadComments();
+    </script>
+</body>
+</html>
